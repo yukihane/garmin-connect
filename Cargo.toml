@@ -1,0 +1,6 @@
+[package]
+name = "garmin-connect"
+version = "0.1.0"
+authors = ["yukihane <yukihane.feather@gmail.com>"]
+
+[dependencies]
