@@ -3,8 +3,6 @@ extern crate futures;
 extern crate hyper;
 extern crate tokio_core;
 
-extern crate pretty_env_logger;
-
 use std::env;
 use std::io::{self, Write};
 
@@ -14,7 +12,6 @@ use futures::stream::Stream;
 use hyper::Client;
 
 fn main() {
-    pretty_env_logger::init().unwrap();
 
     let url = match env::args().nth(1) {
         Some(url) => url,
