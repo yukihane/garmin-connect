@@ -10,7 +10,7 @@ use std::io::{self, Write};
 use futures::Future;
 use futures::stream::Stream;
 
-use hyper::Client;
+use hyper::{Method, Body, Client, Request};
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 
@@ -24,15 +24,16 @@ fn main() {
     //        return;
     //    }
 
-    let mut core = tokio_core::reactor::Core::new().unwrap();
+    let mut core = Core::new().unwrap();
     let handle = core.handle();
     // https://hyper.rs/guides/client/configuration/
     let client = Client::configure()
         .connector(HttpsConnector::new(4, &handle).unwrap())
         .build(&handle);
 
+    let req: Request<Body> = Request::new(Method::Post, url);
     let work = client
-        .get(url)
+        .request(req)
         .and_then(|res| {
             println!("Response: {}", res.status());
             println!("Headers: \n{}", res.headers());
