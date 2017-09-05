@@ -1,35 +1,35 @@
-#![deny(warnings)]
+//#![deny(warnings)]
 extern crate futures;
 extern crate hyper;
+extern crate hyper_tls;
 extern crate tokio_core;
 
-use std::env;
+//use std::env;
 use std::io::{self, Write};
 
 use futures::Future;
 use futures::stream::Stream;
 
 use hyper::Client;
+use hyper_tls::HttpsConnector;
+use tokio_core::reactor::Core;
 
 fn main() {
 
-    let url = match env::args().nth(1) {
-        Some(url) => url,
-        None => {
-            println!("Usage: client <url>");
-            return;
-        }
-    };
+    let url = "https://connect.garmin.com/en-US/";
 
     let url = url.parse::<hyper::Uri>().unwrap();
-    if url.scheme() != Some("http") {
-        println!("This example only works with 'http' URLs.");
-        return;
-    }
+    //    if url.scheme() != Some("http") {
+    //        println!("This example only works with 'http' URLs.");
+    //        return;
+    //    }
 
     let mut core = tokio_core::reactor::Core::new().unwrap();
     let handle = core.handle();
-    let client = Client::new(&handle);
+    // https://hyper.rs/guides/client/configuration/
+    let client = Client::configure()
+        .connector(HttpsConnector::new(4, &handle).unwrap())
+        .build(&handle);
 
     let work = client
         .get(url)
