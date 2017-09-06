@@ -3,9 +3,13 @@ extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
+extern crate url;
 
 //use std::env;
 use std::io::{self, Write};
+
+use url::form_urlencoded;
+use url::Url;
 
 use futures::Future;
 use futures::stream::Stream;
@@ -16,9 +20,21 @@ use tokio_core::reactor::Core;
 
 fn main() {
 
-    let url = "https://connect.garmin.com/en-US/";
+    let url = "https://sso.garmin.com/sso/login";
 
-    let url = url.parse::<hyper::Uri>().unwrap();
+    let query = vec![
+        ("service", "https://connect.garmin.com/post-auth/login"),
+        ("clientId", "GarminConnect"),
+        ("gauthHost", "https://sso.garmin.com/sso"),
+        ("consumeServiceTicket", "false"),
+    ];
+
+    let url = Url::parse_with_params(url, query).unwrap();
+
+
+    //    let url = Url::parse_with_params(url, query.into_iter());
+    //
+    let url = url.as_str().parse::<hyper::Uri>().unwrap();
     //    if url.scheme() != Some("http") {
     //        println!("This example only works with 'http' URLs.");
     //        return;
@@ -31,7 +47,26 @@ fn main() {
         .connector(HttpsConnector::new(4, &handle).unwrap())
         .build(&handle);
 
-    let req: Request<Body> = Request::new(Method::Post, url);
+    println!("url: {}", url);
+
+    let req = Request::<Body>::new(Method::Get, url);
+
+    // http://siciarz.net/24-days-of-rust-hyper/
+    let query = vec![
+        ("service", "https://connect.garmin.com/post-auth/login"),
+        ("clientId", "GarminConnect"),
+        ("gauthHost", "https://sso.garmin.com/sso"),
+        ("consumeServiceTicket", "false"),
+    ];
+
+    //    let param = form_urlencoded::Serializer::new(String::new())
+    //        .extend_pairs(query.into_iter())
+    //        .finish();
+    //
+    //        url.
+
+    //    println!("param: {}", param);
+    //
     let work = client
         .request(req)
         .and_then(|res| {
